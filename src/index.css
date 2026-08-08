@@ -8,5 +8,53 @@
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
+}
+
+/* ===== Animated moving gradient background ===== */
+@keyframes gradientDrift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-gradient-bg {
+  background-size: 300% 300%;
+  animation: gradientDrift 18s ease infinite;
+  transition: background-image 0.8s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-gradient-bg {
+    animation: none;
+  }
+}
+
+/* ===== Simple fade/scale utility for lightbox ===== */
+@keyframes lightboxIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-lightboxIn {
+  animation: lightboxIn 0.2s ease-out;
+}
+
+/* ===== Gallery image grid: fill nicely regardless of aspect ratio ===== */
+.gallery-grid img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
 }

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { X, ExternalLink, Github, CheckCircle2, ArrowLeft, ArrowRight, Layers, Sparkles, Terminal } from 'lucide-react';
+import { X, ExternalLink, Github, CheckCircle2, ArrowLeft, ArrowRight, Layers, Sparkles, Terminal, Images } from 'lucide-react';
 import { Project } from '../types';
 import { PROJECTS_DATA } from '../data/portfolioData';
+import { getProjectImages } from '../utils/projectImages';
+import { ProjectGallery } from './ProjectGallery';
 
 interface ProjectDetailModalProps {
   project: Project | null;
@@ -149,6 +151,18 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Section 04: Screenshot Gallery */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 border-b border-black/10 dark:border-white/10 pb-3">
+                  <span className="text-2xl font-black font-mono text-amber-600">04</span>
+                  <h3 className="text-lg font-bold flex items-center gap-2">
+                    <Images className="w-5 h-5 text-amber-600" />
+                    Screenshot Gallery
+                  </h3>
+                </div>
+                <ProjectGallery images={getProjectImages(project.id)} projectTitle={project.title} />
               </div>
 
               {/* Tech Stack Banner */}

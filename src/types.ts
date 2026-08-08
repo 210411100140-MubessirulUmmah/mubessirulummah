@@ -22,6 +22,12 @@ export interface Project {
   mockupType: 'macbook-mobile' | 'mobile-only' | 'dashboard' | 'code-preview';
 }
 
+/** A screenshot picked up automatically from src/assets/projects/<project-id>/ */
+export interface ProjectImage {
+  url: string;
+  fileName: string;
+}
+
 export interface Experience {
   id: string;
   role: string;

@@ -14,29 +14,56 @@ export default function App() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [theme, setTheme] = useState<ThemeStyle>('linen');
 
-  // Background Theme Preset Styles matching screenshots
-  const getThemeClass = (currentTheme: ThemeStyle) => {
+  // Background Theme Preset Styles — each is a multi-stop gradient that
+  // slowly drifts (see .animated-gradient-bg + gradientDrift keyframes in index.css)
+  // instead of a static, manually-picked gradient.
+  const getThemeMeta = (currentTheme: ThemeStyle) => {
     switch (currentTheme) {
       case 'linen':
-        return 'bg-[#e8e6e1] text-[#1c1b18]'; // Linen/paper texture background (Screenshot 1)
+        return {
+          textClass: 'text-[#1c1b18]',
+          gradient:
+            'linear-gradient(120deg, #efece4, #e8e6e1, #ddd7c9, #ece7da, #efece4)',
+        };
       case 'blue-glow':
-        return 'bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-slate-100 dark';
+        return {
+          textClass: 'text-slate-100 dark',
+          gradient:
+            'linear-gradient(120deg, #0f172a, #1e293b, #0c4a6e, #1e3a5f, #0f172a)',
+        };
       case 'amber-orange':
-        return 'bg-gradient-to-b from-amber-900 via-stone-900 to-zinc-950 text-amber-50 dark';
+        return {
+          textClass: 'text-amber-50 dark',
+          gradient:
+            'linear-gradient(120deg, #451a03, #78350f, #1c1917, #7c2d12, #451a03)',
+        };
       case 'teal-mesh':
-        return 'bg-gradient-to-b from-teal-950 via-slate-900 to-zinc-900 text-teal-50 dark';
+        return {
+          textClass: 'text-teal-50 dark',
+          gradient:
+            'linear-gradient(120deg, #042f2e, #134e4a, #1e293b, #0f766e, #042f2e)',
+        };
       case 'dark-editorial':
-        return 'bg-zinc-950 text-zinc-100 dark';
+        return {
+          textClass: 'text-zinc-100 dark',
+          gradient:
+            'linear-gradient(120deg, #09090b, #18181b, #27272a, #18181b, #09090b)',
+        };
       default:
-        return 'bg-[#e8e6e1] text-[#1c1b18]';
+        return {
+          textClass: 'text-[#1c1b18]',
+          gradient:
+            'linear-gradient(120deg, #efece4, #e8e6e1, #ddd7c9, #ece7da, #efece4)',
+        };
     }
   };
 
+  const { textClass, gradient } = getThemeMeta(theme);
+
   return (
     <div
-      className={`min-h-screen font-sans transition-colors duration-500 selection:bg-amber-400 selection:text-black ${getThemeClass(
-        theme
-      )}`}
+      className={`min-h-screen font-sans selection:bg-amber-400 selection:text-black animated-gradient-bg ${textClass}`}
+      style={{ backgroundImage: gradient }}
     >
       {/* Top Header */}
       <Header
