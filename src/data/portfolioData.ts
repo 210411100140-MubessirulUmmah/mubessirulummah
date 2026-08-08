@@ -125,7 +125,7 @@ export const PROJECTS_DATA: Project[] = [
       { title: "Offline Image Caching & Reports", desc: "Simpan riwayat deteksi dan unduh gambar dengan anotasi cacat langsung ke memori HP." }
     ],
     tools: ["Python", "PyTorch", "DETR", "Flask API", "Docker", "Android Studio", "Kotlin", "NumPy", "VPS"],
-    githubUrl: "https://github.com/210411100140-MubessirulUmmah/welddefectdetector",
+    githubUrl: "https://github.com/210411100140-MubessirulUmmah/welddefectapp",
     publicationLink: "#publications",
     badge: "Taylor & Francis Published",
     featured: true,

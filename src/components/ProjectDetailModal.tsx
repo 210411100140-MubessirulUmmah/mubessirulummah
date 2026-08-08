@@ -49,13 +49,13 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
           <div className="flex items-center gap-3">
             {/* View Interactive Demo Tab Toggle */}
-            <button
+            {/* <button
               onClick={() => setActiveTab(activeTab === 'overview' ? 'interactive' : 'overview')}
               className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 hover:bg-amber-300 text-black flex items-center gap-1.5 transition-colors"
             >
               <Sparkles className="w-3.5 h-3.5 fill-black" />
               <span>{activeTab === 'overview' ? 'Try Interactive Preview' : 'Back to Case Study'}</span>
-            </button>
+            </button> */}
 
             <button
               id="close-modal-btn"
