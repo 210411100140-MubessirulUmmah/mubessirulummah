@@ -45,6 +45,14 @@ async function startServer() {
         return res.status(400).json({ error: "Message is required" });
       }
 
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey || apiKey === "MY_GEMINI_API_KEY") {
+        return res.status(500).json({
+          error:
+            "GEMINI_API_KEY belum diatur. Isi .env dengan API key Gemini yang valid (lihat https://aistudio.google.com/apikey), lalu restart server.",
+        });
+      }
+
       const ai = getGenAI();
 
       const systemInstruction = `You are the AI Assistant for Mubessirul Ummah's personal portfolio website.
@@ -119,33 +127,6 @@ Provide informative, polite, concise answers with formatting (bullet points, bol
     }
   });
 
-  // AI Content Script / Email Automation Playground Generator Endpoint
-  app.post("/api/generate-content", async (req, res) => {
-    try {
-      const { type, topic, style } = req.body;
-      const ai = getGenAI();
-
-      let prompt = "";
-      if (type === "instagram") {
-        prompt = `Generate 3 creative Instagram Feed & Reels content script hooks and captions for topic: "${topic}". Tone/Style: ${style || "Engaging and Educational"}. Format cleanly with emojis and hashtags.`;
-      } else if (type === "email") {
-        prompt = `Generate a professional AI automated customer support email reply for an inquiry regarding: "${topic}". Customer sentiment: ${style || "General Inquiry"}. Include place-holder brackets for company details.`;
-      } else {
-        prompt = `Generate a concise summary or automation strategy for: "${topic}".`;
-      }
-
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-      });
-
-      return res.json({ output: response.text });
-    } catch (error: any) {
-      console.error("Error in /api/generate-content:", error);
-      return res.status(500).json({ error: error.message || "Failed to generate content" });
-    }
-  });
-
   // Direct Contact Form Endpoint (Sends directly without requiring user email client)
   app.post("/api/contact", async (req, res) => {
     try {
@@ -157,28 +138,41 @@ Provide informative, polite, concise answers with formatting (bullet points, bol
       console.log(`[CONTACT FORM RECEIVED] From: ${name} (${email}) | Subject: ${subject}`);
       console.log(`Message Body:\n${message}`);
 
-      // Forward to Web3Forms free endpoint if access key is provided or use default public endpoint
       const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
-      if (accessKey) {
-        try {
-          await fetch("https://api.web3forms.com/submit", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({
-              access_key: accessKey,
-              name,
-              email,
-              subject: subject || `Pesan dari ${name} via Portofolio`,
-              message,
-              from_name: `${name} (Portofolio Mubessirul)`,
-            }),
-          });
-        } catch (web3Err) {
-          console.error("Web3Forms forward error:", web3Err);
-        }
+      if (!accessKey) {
+        return res.status(500).json({
+          error: "WEB3FORMS_ACCESS_KEY belum diatur di .env.",
+        });
+      }
+
+      // Forward to Web3Forms and actually check whether it succeeded.
+      // Previously this response was ignored and the app always told the
+      // visitor "success" even when the email was never delivered.
+      const web3Res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          name,
+          email,
+          subject: subject || `Pesan dari ${name} via Portofolio`,
+          message,
+          from_name: `${name} (Portofolio Mubessirul)`,
+        }),
+      });
+
+      const web3Data: any = await web3Res.json().catch(() => ({}));
+
+      if (!web3Res.ok || !web3Data.success) {
+        console.error("Web3Forms error:", web3Res.status, web3Data);
+        return res.status(502).json({
+          error:
+            web3Data?.message ||
+            "Gagal mengirim pesan ke Web3Forms. Pastikan access key valid dan sudah dikonfirmasi lewat email.",
+        });
       }
 
       return res.json({

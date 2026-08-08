@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import { Sparkles, Bot, Send, RefreshCw, Scan, MessageSquareText, Cpu, CheckCircle2, AlertCircle } from 'lucide-react';
-import { PERSONAL_INFO } from '../data/portfolioData';
+import React, { useRef, useState } from 'react';
+import { Sparkles, Bot, Send, RefreshCw, ImagePlus, CheckCircle2, Loader2 } from 'lucide-react';
+
+type DetectionBox = {
+  class: string;
+  score: number;
+  bbox: [number, number, number, number];
+};
 
 export const PlaygroundSection: React.FC = () => {
-  // Playground Active Tool Tab
-  const [activeTool, setActiveTool] = useState<'chatbot' | 'vision' | 'generator'>('chatbot');
+  const [activeTool, setActiveTool] = useState<'chatbot' | 'vision'>('chatbot');
 
   // Chatbot State
   const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([
@@ -16,18 +20,17 @@ export const PlaygroundSection: React.FC = () => {
   const [userInput, setUserInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
 
-  // Vision Detector State
-  const [visionSample, setVisionSample] = useState<'ct-scan' | 'welding'>('ct-scan');
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanResult, setScanResult] = useState<any>(null);
+  // Object Detection State
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [isModelLoading, setIsModelLoading] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [detections, setDetections] = useState<DetectionBox[] | null>(null);
+  const [detectError, setDetectError] = useState('');
+  const imgRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const modelRef = useRef<any>(null);
 
-  // Generator State
-  const [genType, setGenType] = useState<'instagram' | 'email'>('instagram');
-  const [genTopic, setGenTopic] = useState('Peluncuran Fitur AI Automation Baru');
-  const [genOutput, setGenOutput] = useState('');
-  const [isGenLoading, setIsGenLoading] = useState(false);
-
-  // Suggested Prompts
   const suggestedPrompts = [
     'Apa saja riset dan publikasi jurnal Mubessirul?',
     'Jelaskan pengalaman proyek VMG Elite & Valord Spark Night!',
@@ -35,7 +38,6 @@ export const PlaygroundSection: React.FC = () => {
     'Bagaimana latar belakang pendidikan dan prestasinya?',
   ];
 
-  // Handle Chat Submit
   const handleSendChat = async (inputPrompt?: string) => {
     const promptToSend = inputPrompt || userInput;
     if (!promptToSend.trim() || isChatLoading) return;
@@ -59,12 +61,15 @@ export const PlaygroundSection: React.FC = () => {
       });
 
       const data = await response.json();
-      if (data.reply) {
+      if (response.ok && data.reply) {
         setChatMessages([...newMessages, { role: 'assistant', text: data.reply }]);
       } else {
         setChatMessages([
           ...newMessages,
-          { role: 'assistant', text: 'Maaf, terjadi masalah saat memproses tanggapan. Silakan coba lagi.' },
+          {
+            role: 'assistant',
+            text: data.error || 'Maaf, terjadi masalah saat memproses tanggapan. Silakan coba lagi.',
+          },
         ]);
       }
     } catch (err) {
@@ -78,83 +83,116 @@ export const PlaygroundSection: React.FC = () => {
     }
   };
 
-  // Handle Vision Scan Simulation
-  const handleRunScan = () => {
-    setIsScanning(true);
-    setScanResult(null);
-
-    setTimeout(() => {
-      setIsScanning(false);
-      if (visionSample === 'ct-scan') {
-        setScanResult({
-          model: 'YOLOv8 Medical Fine-Tuned Model',
-          detected: 'Lung Lesion / Structural Abnormality Detected',
-          confidence: '98.4%',
-          boxes: [
-            { label: 'Lung Abnormality (Right Lobe)', confidence: '0.98', coords: 'X: 142, Y: 88, W: 74, H: 65' },
-          ],
-          medicalNote: 'Patent-Pending System (Application No. S00202416178). High confidence match.',
-        });
-      } else {
-        setScanResult({
-          model: 'DETR / Mask R-CNN Weld Quality Inspector',
-          detected: 'Slag Inclusion Defect Identified',
-          confidence: '96.8%',
-          boxes: [
-            { label: 'Slag Inclusion', confidence: '0.96', coords: 'X: 210, Y: 130, W: 110, H: 45' },
-            { label: 'Porosity Cluster', confidence: '0.91', coords: 'X: 340, Y: 180, W: 50, H: 40' },
-          ],
-          medicalNote: 'Copyrighted DGIP Application & Taylor & Francis Peer-Reviewed Architecture.',
-        });
-      }
-    }, 1500);
+  // Load the coco-ssd model once, lazily, the first time it's needed.
+  const loadModel = async () => {
+    if (modelRef.current) return modelRef.current;
+    setIsModelLoading(true);
+    try {
+      const tf = await import('@tensorflow/tfjs');
+      const cocoSsd = await import('@tensorflow-models/coco-ssd');
+      await tf.ready();
+      const model = await cocoSsd.load();
+      modelRef.current = model;
+      return model;
+    } finally {
+      setIsModelLoading(false);
+    }
   };
 
-  // Handle Generator
-  const handleGenerateContent = async () => {
-    if (!genTopic.trim() || isGenLoading) return;
-    setIsGenLoading(true);
-    setGenOutput('');
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setDetections(null);
+    setDetectError('');
+    const reader = new FileReader();
+    reader.onload = () => setImageSrc(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const drawBoxes = (boxes: DetectionBox[]) => {
+    const img = imgRef.current;
+    const canvas = canvasRef.current;
+    if (!img || !canvas) return;
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    boxes.forEach((box) => {
+      const [x, y, w, h] = box.bbox;
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = Math.max(2, canvas.width / 250);
+      ctx.strokeRect(x, y, w, h);
+
+      const label = `${box.class} (${Math.round(box.score * 100)}%)`;
+      ctx.font = `${Math.max(14, canvas.width / 45)}px sans-serif`;
+      const textWidth = ctx.measureText(label).width;
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(x, Math.max(0, y - 22), textWidth + 10, 22);
+      ctx.fillStyle = '#000000';
+      ctx.fillText(label, x + 5, Math.max(16, y - 6));
+    });
+  };
+
+  const handleRunDetection = async () => {
+    if (!imageSrc || !imgRef.current) return;
+    setIsDetecting(true);
+    setDetectError('');
+    setDetections(null);
 
     try {
-      const res = await fetch('/api/generate-content', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: genType, topic: genTopic }),
-      });
-      const data = await res.json();
-      setGenOutput(data.output || 'Gagal menghasilkan konten.');
-    } catch (e) {
-      setGenOutput('Gagal menghubungkan ke Gemini AI.');
+      const model = await loadModel();
+      if (!imgRef.current.complete) {
+        await new Promise((resolve) => {
+          imgRef.current!.onload = resolve;
+        });
+      }
+      const predictions = await model.detect(imgRef.current);
+      setDetections(predictions);
+      drawBoxes(predictions);
+    } catch (err: any) {
+      console.error(err);
+      setDetectError('Gagal menjalankan model deteksi objek di browser. Coba gambar lain atau refresh halaman.');
     } finally {
-      setIsGenLoading(false);
+      setIsDetecting(false);
+    }
+  };
+
+  const resetDetection = () => {
+    setImageSrc(null);
+    setDetections(null);
+    setDetectError('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
     }
   };
 
   return (
     <section id="playground" className="py-16 border-b border-black/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Banner Accent matching Screenshot 3 */}
+        {/* Top Banner Accent */}
         <div className="relative rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 p-8 sm:p-12 mb-12 text-black shadow-xl overflow-hidden">
-          <div className="absolute right-4 bottom-0 opacity-10 font-black text-9xl select-none">
-            AI
-          </div>
+          <div className="absolute right-4 bottom-0 opacity-10 font-black text-9xl select-none">AI</div>
           <div className="relative z-10 max-w-2xl">
             <span className="px-3 py-1 bg-black text-white rounded-full font-mono text-xs font-bold uppercase tracking-widest inline-flex items-center gap-1.5 mb-4">
               <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
               Interactive Lab
             </span>
-            <h2 className="text-4xl sm:text-6xl font-black tracking-tight mb-3">
-              Playground
-            </h2>
+            <h2 className="text-4xl sm:text-6xl font-black tracking-tight mb-3">Playground</h2>
             <p className="text-black/80 font-medium text-base sm:text-lg">
-              Here are some explorations that I like. Click on the tools below to see live Gemini AI demos and defect detection simulations.
+              Here are some explorations that I like. Click on the tools below to chat with a Gemini AI assistant
+              or try a live object detection model right in your browser.
             </p>
           </div>
         </div>
 
         {/* Playground Tabs */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <button
             id="playground-tab-chatbot"
             onClick={() => setActiveTool('chatbot')}
@@ -185,32 +223,12 @@ export const PlaygroundSection: React.FC = () => {
             }`}
           >
             <div className="p-3 rounded-xl bg-sky-400 text-black shrink-0">
-              <Cpu className="w-6 h-6" />
+              <ImagePlus className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-bold text-base">AI Computer Vision Simulator</h3>
+              <h3 className="font-bold text-base">Object Detection Demo</h3>
               <p className="text-xs opacity-80 mt-1">
-                Test medical CT Scan & welding defect detection bounding box models.
-              </p>
-            </div>
-          </button>
-
-          <button
-            id="playground-tab-generator"
-            onClick={() => setActiveTool('generator')}
-            className={`p-5 rounded-2xl border text-left transition-all flex items-start gap-4 ${
-              activeTool === 'generator'
-                ? 'bg-black text-white border-black shadow-lg scale-[1.02]'
-                : 'bg-white dark:bg-zinc-800 text-black dark:text-white border-black/10 hover:border-black/30'
-            }`}
-          >
-            <div className="p-3 rounded-xl bg-emerald-400 text-black shrink-0">
-              <MessageSquareText className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-bold text-base">AI Script & Workflow Generator</h3>
-              <p className="text-xs opacity-80 mt-1">
-                Generate marketing scripts & AI email replies automatically.
+                Upload any photo and see a real object detection model run live in your browser.
               </p>
             </div>
           </button>
@@ -243,15 +261,9 @@ export const PlaygroundSection: React.FC = () => {
                 </button>
               </div>
 
-              {/* Chat Messages Box */}
               <div className="bg-stone-50 dark:bg-zinc-950 rounded-2xl p-4 sm:p-6 space-y-4 max-h-[380px] overflow-y-auto border border-black/5">
                 {chatMessages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex gap-3 ${
-                      msg.role === 'user' ? 'justify-end' : 'justify-start'
-                    }`}
-                  >
+                  <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {msg.role === 'assistant' && (
                       <div className="w-8 h-8 rounded-full bg-amber-400 text-black flex items-center justify-center font-bold shrink-0 text-xs shadow">
                         AI
@@ -279,7 +291,6 @@ export const PlaygroundSection: React.FC = () => {
                 )}
               </div>
 
-              {/* Quick Prompt Suggestions */}
               <div className="space-y-2">
                 <span className="text-xs font-mono text-gray-500 block">Suggested Questions:</span>
                 <div className="flex flex-wrap gap-2">
@@ -295,7 +306,6 @@ export const PlaygroundSection: React.FC = () => {
                 </div>
               </div>
 
-              {/* Chat Input Box */}
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -324,171 +334,109 @@ export const PlaygroundSection: React.FC = () => {
             </div>
           )}
 
-          {/* TOOL 2: COMPUTER VISION SIMULATOR */}
+          {/* TOOL 2: OBJECT DETECTION DEMO */}
           {activeTool === 'vision' && (
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-black/10 dark:border-white/10">
                 <div>
-                  <h3 className="text-xl font-bold">Deep Learning Defect & Abnormality Detection</h3>
+                  <h3 className="text-xl font-bold">Live Object Detection</h3>
                   <p className="text-xs text-gray-500 font-mono mt-0.5">
-                    Simulates YOLOv8 & DETR / Mask R-CNN Cloud Inference Pipelines
+                    Runs COCO-SSD (TensorFlow.js) entirely in your browser — no image is uploaded to any server.
                   </p>
                 </div>
-
-                <div className="flex gap-2">
+                {imageSrc && (
                   <button
-                    onClick={() => setVisionSample('ct-scan')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                      visionSample === 'ct-scan'
-                        ? 'bg-sky-600 text-white'
-                        : 'bg-black/5 dark:bg-white/10'
-                    }`}
+                    onClick={resetDetection}
+                    className="text-xs font-mono text-gray-500 hover:text-black flex items-center gap-1"
                   >
-                    Medical CT Scan (YOLOv8)
+                    <RefreshCw className="w-3.5 h-3.5" /> Reset
                   </button>
-                  <button
-                    onClick={() => setVisionSample('welding')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                      visionSample === 'welding'
-                        ? 'bg-sky-600 text-white'
-                        : 'bg-black/5 dark:bg-white/10'
-                    }`}
-                  >
-                    SMAW Welding Defect (DETR)
-                  </button>
-                </div>
+                )}
               </div>
 
-              {/* Interactive Image Frame */}
-              <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="grid md:grid-cols-2 gap-8 items-start">
+                {/* Upload / preview panel */}
                 <div className="relative rounded-2xl bg-zinc-950 p-6 text-white overflow-hidden border border-zinc-800 min-h-[300px] flex flex-col items-center justify-center">
-                  <div className="absolute top-3 left-3 bg-black/60 px-3 py-1 rounded text-[10px] font-mono text-sky-400">
-                    SAMPLE: {visionSample.toUpperCase()}
-                  </div>
+                  {!imageSrc ? (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex flex-col items-center gap-3 text-zinc-400 hover:text-amber-400 transition-colors"
+                    >
+                      <ImagePlus className="w-12 h-12" />
+                      <span className="text-sm font-mono">Click to upload a photo</span>
+                      <span className="text-[11px] font-mono text-zinc-500">JPG or PNG, any everyday scene</span>
+                    </button>
+                  ) : (
+                    <div className="relative w-full max-w-xs">
+                      <img
+                        ref={imgRef}
+                        src={imageSrc}
+                        alt="Uploaded for detection"
+                        className="w-full rounded-xl border border-zinc-700"
+                        crossOrigin="anonymous"
+                      />
+                      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full rounded-xl" />
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
 
-                  {/* Simulated Frame graphic */}
-                  <div className="relative w-full max-w-xs h-48 bg-zinc-900 rounded-xl border border-zinc-700 flex items-center justify-center overflow-hidden shadow-2xl">
-                    <Scan className={`w-16 h-16 ${isScanning ? 'text-amber-400 animate-spin' : 'text-zinc-600'}`} />
-
-                    {/* Bounding box overlays when scanned */}
-                    {scanResult && (
-                      <div className="absolute inset-4 border-2 border-amber-400 bg-amber-400/20 rounded flex flex-col justify-between p-2">
-                        <span className="bg-amber-400 text-black text-[10px] font-mono font-bold px-1 py-0.5 rounded self-start">
-                          {scanResult.boxes[0].label} ({scanResult.confidence})
-                        </span>
-                        <span className="text-[9px] font-mono text-amber-200 bg-black/70 px-1 py-0.5 rounded self-end">
-                          {scanResult.boxes[0].coords}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={handleRunScan}
-                    disabled={isScanning}
-                    className="mt-6 px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50"
-                  >
-                    {isScanning ? 'Running Neural Net Inference...' : 'Run Detection Model'}
-                  </button>
+                  {imageSrc && (
+                    <button
+                      onClick={handleRunDetection}
+                      disabled={isDetecting || isModelLoading}
+                      className="mt-6 px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                    >
+                      {(isDetecting || isModelLoading) && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {isModelLoading
+                        ? 'Loading model...'
+                        : isDetecting
+                        ? 'Running Inference...'
+                        : 'Run Detection Model'}
+                    </button>
+                  )}
                 </div>
 
-                {/* Scan Output details */}
+                {/* Results panel */}
                 <div className="space-y-4 font-sans">
                   <h4 className="font-bold text-lg flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                    Model Inference Results
+                    Detection Results
                   </h4>
 
-                  {scanResult ? (
+                  {detectError && (
+                    <div className="bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 text-xs p-4 rounded-2xl">
+                      {detectError}
+                    </div>
+                  )}
+
+                  {detections && detections.length > 0 ? (
                     <div className="bg-stone-50 dark:bg-zinc-800 p-5 rounded-2xl border border-black/10 space-y-3 font-mono text-xs">
-                      <div>
-                        <span className="text-gray-500">Model Architecture:</span>{' '}
-                        <strong className="text-black dark:text-white">{scanResult.model}</strong>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Status:</span>{' '}
-                        <span className="text-emerald-600 font-bold">{scanResult.detected}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Overall Confidence:</span>{' '}
-                        <span className="text-amber-600 font-bold">{scanResult.confidence}</span>
-                      </div>
-                      <div className="pt-2 border-t border-black/10 text-[11px] text-gray-600 dark:text-gray-300">
-                        <strong>Research Note:</strong> {scanResult.medicalNote}
-                      </div>
+                      {detections.map((d, i) => (
+                        <div key={i} className="flex items-center justify-between border-b border-black/5 last:border-0 pb-2 last:pb-0">
+                          <span className="font-bold text-black dark:text-white capitalize">{d.class}</span>
+                          <span className="text-amber-600 font-bold">{Math.round(d.score * 100)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : detections && detections.length === 0 ? (
+                    <div className="bg-stone-50 dark:bg-zinc-800 p-6 rounded-2xl border border-dashed border-gray-400 text-gray-500 text-xs text-center">
+                      No common objects detected in this image. Try a photo with people, animals, vehicles, or
+                      everyday objects.
                     </div>
                   ) : (
                     <div className="bg-stone-50 dark:bg-zinc-800 p-6 rounded-2xl border border-dashed border-gray-400 text-gray-500 text-xs text-center">
-                      Click "Run Detection Model" to trigger simulated deep learning inference and output bounding box coordinates.
+                      Upload a photo and click "Run Detection Model" to see live bounding boxes for objects like
+                      people, cars, animals, and everyday items — powered by a general-purpose model (COCO-SSD)
+                      running fully client-side.
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* TOOL 3: SCRIPT & EMAIL GENERATOR */}
-          {activeTool === 'generator' && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center pb-4 border-b border-black/10 dark:border-white/10">
-                <div>
-                  <h3 className="text-xl font-bold">Generative AI Marketing Script & Email Auto-Reply</h3>
-                  <p className="text-xs text-gray-500 font-mono mt-0.5">
-                    Powered by Gemini 2.5 Flash & Workflow Prompt Logic
-                  </p>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setGenType('instagram')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                      genType === 'instagram' ? 'bg-emerald-600 text-white' : 'bg-black/5 dark:bg-white/10'
-                    }`}
-                  >
-                    Instagram Script
-                  </button>
-                  <button
-                    onClick={() => setGenType('email')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                      genType === 'email' ? 'bg-emerald-600 text-white' : 'bg-black/5 dark:bg-white/10'
-                    }`}
-                  >
-                    Auto-Reply Email
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-mono font-bold uppercase text-gray-500 mb-1">
-                    {genType === 'instagram' ? 'Topic / Product Name:' : 'Customer Inquiry Context:'}
-                  </label>
-                  <input
-                    type="text"
-                    value={genTopic}
-                    onChange={(e) => setGenTopic(e.target.value)}
-                    placeholder="e.g. Peluncuran parfum VMG terbaru / Tanya jam operasional kantor"
-                    className="w-full px-4 py-2.5 rounded-xl border border-black/20 dark:border-white/20 bg-white dark:bg-zinc-800 text-sm"
-                  />
-                </div>
-
-                <button
-                  onClick={handleGenerateContent}
-                  disabled={isGenLoading}
-                  className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2"
-                >
-                  <Sparkles className="w-4 h-4 fill-black" />
-                  <span>{isGenLoading ? 'Generating...' : 'Generate with Gemini AI'}</span>
-                </button>
-
-                {genOutput && (
-                  <div className="mt-4 bg-stone-50 dark:bg-zinc-950 p-6 rounded-2xl border border-black/10 font-sans text-sm leading-relaxed whitespace-pre-wrap">
-                    <span className="text-xs font-mono text-emerald-600 font-bold block mb-2">
-                      GENERATED AI OUTPUT:
-                    </span>
-                    {genOutput}
-                  </div>
-                )}
               </div>
             </div>
           )}

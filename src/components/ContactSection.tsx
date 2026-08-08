@@ -40,9 +40,7 @@ export const ContactSection: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      // Even if fetch fails, show success state to user directly
-      setSubmitted(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setErrorMessage('Gagal terhubung ke server. Periksa koneksi internet Anda dan coba lagi.');
     } finally {
       setLoading(false);
     }
@@ -151,10 +149,16 @@ export const ContactSection: React.FC = () => {
                   />
                 </div>
 
+                {errorMessage && (
+                  <div className="rounded-xl border border-red-300 bg-red-50 dark:bg-red-950/40 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-300 font-medium">
+                    {errorMessage}
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-8 py-3.5 rounded-xl bg-black text-white font-black text-sm uppercase tracking-wider hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg"
+                  className="px-8 py-3.5 rounded-xl bg-black text-white font-black text-sm uppercase tracking-wider hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg disabled:opacity-50"
                 >
                   <span>{loading ? 'Sending...' : 'Send Message ↗'}</span>
                   <Send className="w-4 h-4" />
