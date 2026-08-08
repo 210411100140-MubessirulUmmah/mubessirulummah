@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
+import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -127,7 +128,9 @@ Provide informative, polite, concise answers with formatting (bullet points, bol
     }
   });
 
-  // Direct Contact Form Endpoint (Sends directly without requiring user email client)
+  // Direct Contact Form Endpoint — sends via your own Gmail account (SMTP),
+  // no third-party form service. See api/contact.ts for the Vercel
+  // production version and setup notes (App Password required).
   app.post("/api/contact", async (req, res) => {
     try {
       const { name, email, subject, message } = req.body;
@@ -135,53 +138,39 @@ Provide informative, polite, concise answers with formatting (bullet points, bol
         return res.status(400).json({ error: "Nama, email, dan pesan wajib diisi." });
       }
 
-      console.log(`[CONTACT FORM RECEIVED] From: ${name} (${email}) | Subject: ${subject}`);
-      console.log(`Message Body:\n${message}`);
+      const gmailUser = process.env.GMAIL_USER;
+      const gmailPass = process.env.GMAIL_APP_PASSWORD;
 
-      const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
-      if (!accessKey) {
+      if (!gmailUser || !gmailPass) {
         return res.status(500).json({
-          error: "WEB3FORMS_ACCESS_KEY belum diatur di .env.",
+          error: "GMAIL_USER / GMAIL_APP_PASSWORD belum diatur di .env.",
         });
       }
 
-      // Forward to Web3Forms and actually check whether it succeeded.
-      // Previously this response was ignored and the app always told the
-      // visitor "success" even when the email was never delivered.
-      const web3Res = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+      const transport = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: gmailUser,
+          pass: gmailPass,
         },
-        body: JSON.stringify({
-          access_key: accessKey,
-          name,
-          email,
-          subject: subject || `Pesan dari ${name} via Portofolio`,
-          message,
-          from_name: `${name} (Portofolio Mubessirul)`,
-        }),
       });
 
-      const web3Data: any = await web3Res.json().catch(() => ({}));
-
-      if (!web3Res.ok || !web3Data.success) {
-        console.error("Web3Forms error:", web3Res.status, web3Data);
-        return res.status(502).json({
-          error:
-            web3Data?.message ||
-            "Gagal mengirim pesan ke Web3Forms. Pastikan access key valid dan sudah dikonfirmasi lewat email.",
-        });
-      }
-
-      return res.json({
-        success: true,
-        message: "Pesan Anda telah langsung terkirim!",
+      await transport.sendMail({
+        from: `"Portofolio - ${name}" <${gmailUser}>`,
+        to: gmailUser,
+        replyTo: email,
+        subject: subject || `Pesan dari ${name} via Portofolio`,
+        text: `Dari: ${name} (${email})\n\n${message}`,
+        html: `<p><strong>Dari:</strong> ${name} (${email})</p><p>${String(message).replace(/\n/g, "<br/>")}</p>`,
       });
+
+      return res.json({ success: true, message: "Pesan Anda telah terkirim!" });
     } catch (error: any) {
       console.error("Error in /api/contact:", error);
-      return res.status(500).json({ error: "Gagal mengirim pesan." });
+      return res.status(500).json({
+        error: "Gagal mengirim pesan. Pastikan GMAIL_USER dan GMAIL_APP_PASSWORD sudah benar.",
+        details: error?.message,
+      });
     }
   });
 

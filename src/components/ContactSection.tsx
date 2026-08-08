@@ -36,7 +36,7 @@ export const ContactSection: React.FC = () => {
         setSubmitted(true);
         setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
-        setErrorMessage(data.error || 'Gagal mengirim pesan. Silakan coba lagi.');
+        setErrorMessage(data.error || 'Gagal mengirim pesan. Silakan coba lagi atau kirim email langsung.');
       }
     } catch (err) {
       console.error(err);

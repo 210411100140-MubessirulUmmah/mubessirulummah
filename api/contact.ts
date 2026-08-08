@@ -1,9 +1,16 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import nodemailer from 'nodemailer';
 
-// NOTE: This file is a Vercel Serverless Function (auto-detected under /api).
-// Make sure WEB3FORMS_ACCESS_KEY is set under Vercel Project Settings -> Environment Variables.
-// Get/confirm your key at https://web3forms.com — new keys require a one-time email confirmation
-// before submissions are actually delivered, which is a common reason messages "succeed" but never arrive.
+// Sends the contact form email directly through your own Gmail account via
+// SMTP — no third-party form service (e.g. Web3Forms) involved.
+//
+// Setup required (once):
+// 1. Turn on 2-Step Verification on the Gmail account: myaccount.google.com/security
+// 2. Create an App Password: myaccount.google.com/apppasswords
+//    (regular Gmail password will NOT work here)
+// 3. Set these in Vercel -> Project Settings -> Environment Variables (and .env locally):
+//    GMAIL_USER = mubarijojo.ummah11@gmail.com
+//    GMAIL_APP_PASSWORD = the 16-character app password (no spaces)
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -17,47 +24,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Nama, email, dan pesan wajib diisi.' });
     }
 
-    const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
-    if (!accessKey) {
+    const gmailUser = process.env.GMAIL_USER;
+    const gmailPass = process.env.GMAIL_APP_PASSWORD;
+
+    if (!gmailUser || !gmailPass) {
       return res.status(500).json({
         error:
-          'WEB3FORMS_ACCESS_KEY belum diatur di server. Tambahkan di Vercel → Project Settings → Environment Variables, lalu redeploy.',
+          'GMAIL_USER / GMAIL_APP_PASSWORD belum diatur di server. Tambahkan di Vercel → Project Settings → Environment Variables, lalu redeploy.',
       });
     }
 
-    const web3Res = await fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+    const transport = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: gmailUser,
+        pass: gmailPass,
       },
-      body: JSON.stringify({
-        access_key: accessKey,
-        name,
-        email,
-        subject: subject || `Pesan dari ${name} via Portofolio`,
-        message,
-        from_name: `${name} (Portofolio Mubessirul)`,
-      }),
     });
 
-    const web3Data = await web3Res.json().catch(() => ({}));
-
-    // This is the key fix: previously the app ignored Web3Forms' actual
-    // response and always told the visitor "success", which is why messages
-    // silently disappeared. Now we only report success if Web3Forms confirms it.
-    if (!web3Res.ok || !web3Data.success) {
-      console.error('Web3Forms error:', web3Res.status, web3Data);
-      return res.status(502).json({
-        error:
-          web3Data?.message ||
-          'Gagal mengirim pesan ke Web3Forms. Pastikan access key valid dan sudah dikonfirmasi lewat email.',
-      });
-    }
+    await transport.sendMail({
+      from: `"Portofolio - ${name}" <${gmailUser}>`,
+      to: gmailUser,
+      replyTo: email,
+      subject: subject || `Pesan dari ${name} via Portofolio`,
+      text: `Dari: ${name} (${email})\n\n${message}`,
+      html: `<p><strong>Dari:</strong> ${name} (${email})</p><p>${String(message).replace(/\n/g, '<br/>')}</p>`,
+    });
 
     return res.status(200).json({ success: true, message: 'Pesan Anda telah terkirim!' });
   } catch (error: any) {
     console.error('Error in /api/contact:', error);
-    return res.status(500).json({ error: 'Gagal mengirim pesan.' });
+    return res.status(500).json({
+      error: 'Gagal mengirim pesan. Pastikan GMAIL_USER dan GMAIL_APP_PASSWORD sudah benar.',
+      details: error?.message,
+    });
   }
 }
