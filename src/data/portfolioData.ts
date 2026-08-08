@@ -267,7 +267,7 @@ export const PUBLICATIONS_DATA: Publication[] = [
     doiOrStatus: "International Peer-Reviewed Journal",
     authors: "Mubessirul Ummah et al.",
     description: "Penelitian utama penerapan arsitektur transformer (DETR) dalam inspeksi otomatis cacat pengelasan SMAW dengan akurasi dan mAP tinggi di lingkungan manufaktur.",
-    link: "https://www.tandfonline.com"
+    link: "https://doi.org/10.1080/09507116.2026.2708882"
   },
   {
     id: "pub-rice-leaves",
@@ -278,7 +278,7 @@ export const PUBLICATIONS_DATA: Publication[] = [
     doiOrStatus: "IEEE / ICTS Indexed Proceeding",
     authors: "Mubessirul Ummah et al.",
     description: "Deteksi dan segmentasi presisi penyakit pada daun tanaman padi menggunakan Mask R-CNN untuk mendukung ketahanan pangan pertanian cerdas.",
-    link: "https://icts.its.ac.id"
+    link: "https://ieeexplore.ieee.org/document/11369617/"
   },
   {
     id: "pub-corisindo",
@@ -289,7 +289,7 @@ export const PUBLICATIONS_DATA: Publication[] = [
     doiOrStatus: "Published Proceeding & Copyrighted Software",
     authors: "Mubessirul Ummah et al.",
     description: "Pengembangan dan registrasi hak cipta resmi aplikasi kecerdasan buatan deteksi cacat las berbasis Mask R-CNN.",
-    link: "https://corisindo.org"
+    link: "https://corisindo.utb-univ.ac.id/index.php/penelitian/article/view/93"
   }
 ];
 
