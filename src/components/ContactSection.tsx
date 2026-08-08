@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle2, Linkedin, Github, MessageSquare, ArrowUpRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, Instagram, Linkedin, Github, MessageSquare, ArrowUpRight } from 'lucide-react';
 import { PERSONAL_INFO } from '../data/portfolioData';
 
 export const ContactSection: React.FC = () => {
@@ -59,13 +59,7 @@ export const ContactSection: React.FC = () => {
               Contact Me
             </h2>
             <p className="text-zinc-300 text-base sm:text-lg leading-relaxed">
-              Get in touch or shoot me an email directly on{' '}
-              <a
-                href={`mailto:${PERSONAL_INFO.email}`}
-                className="font-bold text-amber-400 underline hover:text-amber-300 break-all"
-              >
-                {PERSONAL_INFO.email}
-              </a>
+              Feel free to reach out. I’m always excited to explore new opportunities, collaborate, and build impactful solutions together. 
             </p>
           </div>
         </div>
@@ -160,7 +154,7 @@ export const ContactSection: React.FC = () => {
                   disabled={loading}
                   className="px-8 py-3.5 rounded-xl bg-black text-white font-black text-sm uppercase tracking-wider hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg disabled:opacity-50"
                 >
-                  <span>{loading ? 'Sending...' : 'Send Message ↗'}</span>
+                  <span>{loading ? 'Sending...' : 'Send Message'}</span>
                   <Send className="w-4 h-4" />
                 </button>
               </form>
@@ -189,18 +183,22 @@ export const ContactSection: React.FC = () => {
                 </a>
 
                 <a
-                  href={PERSONAL_INFO.whatsapp}
+                  href={PERSONAL_INFO.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 p-4 rounded-2xl bg-stone-50 dark:bg-zinc-800 hover:bg-stone-100 transition-colors group"
                 >
-                  <div className="p-3 rounded-xl bg-emerald-500 text-white">
-                    <Phone className="w-5 h-5" />
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 text-white">
+                    <Instagram className="w-5 h-5" />
                   </div>
+
                   <div>
-                    <span className="text-xs font-mono uppercase text-gray-500 block">WhatsApp / Phone</span>
+                    <span className="text-xs font-mono uppercase text-gray-500 block">
+                      Instagram
+                    </span>
+
                     <span className="font-bold text-sm text-black dark:text-white group-hover:underline">
-                      {PERSONAL_INFO.phone}
+                      @mubessirul_ummah1001
                     </span>
                   </div>
                 </a>

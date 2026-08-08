@@ -7,9 +7,10 @@ export const PERSONAL_INFO = {
   tagline: "AI Engineer | Generative AI | Computer Vision | AI Automation Specialist",
   location: "Bangkalan, East Java, Indonesia",
   timezone: "Asia/Jakarta",
-  status: "Fullstack Web Developer & AI Automation @ PT Valord Masculine Group",
+  status: "Fullstack Web Dev & AI Automation @ PT Valord Masculine Group",
   email: "mubarijojo.ummah11@gmail.com",
   phone: "+62 857-4867-3497",
+  instagram: "https://www.instagram.com/mubessirul_ummah1001",
   whatsapp: "https://wa.me/6285748673497",
   linkedin: "https://linkedin.com/in/mubessirulummah",
   github: "https://github.com/210411100140-MubessirulUmmah",
@@ -45,7 +46,7 @@ export const PROJECTS_DATA: Project[] = [
       { title: "Google OAuth & Role-Based Access", desc: "Autentikasi teraman dengan role Admin, Manager, dan Karyawan." }
     ],
     tools: ["React 19", "Supabase", "Tailwind CSS", "Google OAuth", "TypeScript", "Vite", "Vercel"],
-    githubUrl: "https://github.com/210411100140-MubessirulUmmah",
+    githubUrl: "https://github.com/210411100140-MubessirulUmmah/valordmasculine",
     badge: "Enterprise Platform",
     featured: true,
     imageTheme: "dark",
@@ -71,7 +72,7 @@ export const PROJECTS_DATA: Project[] = [
       { title: "Google OAuth2 & MySQL Storage", desc: "Penyimpanan data rekam medis terstruktur dengan keamanan akses bertingkat." }
     ],
     tools: ["Flask (Python)", "YOLOv8 (Ultralytics)", "MySQL", "Google OAuth2", "OpenCV", "Bootstrap", "Jinja2"],
-    githubUrl: "https://github.com/210411100140-MubessirulUmmah",
+    githubUrl: "https://github.com/210411100140-MubessirulUmmah/LungDetection",
     publicationLink: "#publications",
     badge: "Patent-Pending S00202416178",
     featured: true,
@@ -98,7 +99,7 @@ export const PROJECTS_DATA: Project[] = [
       { title: "Gender Filtering Logic", desc: "Penyaringan otomatis profil berdasarkan orientasi dan preferensi pasangan." }
     ],
     tools: ["React 19", "TypeScript", "Vite", "Supabase Realtime", "Tailwind CSS", "Vercel"],
-    githubUrl: "https://github.com/210411100140-MubessirulUmmah",
+    githubUrl: "https://github.com/210411100140-MubessirulUmmah/ValordSparkNight",
     badge: "Live Event Tech",
     featured: true,
     imageTheme: "amber",
@@ -124,7 +125,7 @@ export const PROJECTS_DATA: Project[] = [
       { title: "Offline Image Caching & Reports", desc: "Simpan riwayat deteksi dan unduh gambar dengan anotasi cacat langsung ke memori HP." }
     ],
     tools: ["Python", "PyTorch", "DETR", "Flask API", "Docker", "Android Studio", "Kotlin", "NumPy", "VPS"],
-    githubUrl: "https://github.com/210411100140-MubessirulUmmah",
+    githubUrl: "https://github.com/210411100140-MubessirulUmmah/welddefectdetector",
     publicationLink: "#publications",
     badge: "Taylor & Francis Published",
     featured: true,
@@ -173,7 +174,7 @@ export const PROJECTS_DATA: Project[] = [
       { title: "Structured JSON Output", desc: "Mengubah teks PDF pengadilan tak terstruktur menjadi JSON terstruktur untuk database." }
     ],
     tools: ["Python", "Transformers", "BERT", "RoBERTa", "PyTorch", "SpaCy", "Regular Expressions"],
-    githubUrl: "https://github.com/210411100140-MubessirulUmmah",
+    githubUrl: "https://huggingface.co/spaces/irulBES/ML-PENGADILAN",
     badge: "NLP Pipeline",
     featured: false,
     imageTheme: "dark",

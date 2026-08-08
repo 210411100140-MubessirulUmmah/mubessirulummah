@@ -147,19 +147,7 @@ export const Header: React.FC<HeaderProps> = ({
           </a>
 
           {/* Theme Pill Toggle Button (Matches top right toggle switch in screenshot 1 & 11) */}
-          <button
-            id="theme-toggle-btn"
-            onClick={cycleTheme}
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-medium text-xs shadow-md transition-all active:scale-95"
-            title={`Current Theme: ${theme}. Click to change visual preset.`}
-          >
-            <div className="w-3.5 h-3.5 rounded-full bg-black flex items-center justify-center shrink-0">
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            </div>
-            <span className="font-mono text-[11px] capitalize hidden md:inline">
-              {theme.replace('-', ' ')}
-            </span>
-          </button>
+        
 
           {/* Hamburger toggle — mobile & tablet only */}
           <button

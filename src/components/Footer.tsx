@@ -33,12 +33,12 @@ export const Footer: React.FC = () => {
           </a>
 
           <a
-            href={PERSONAL_INFO.whatsapp}
+            href={PERSONAL_INFO.instagram}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-amber-600 transition-colors flex items-center gap-1"
           >
-            <span>→ WhatsApp</span>
+            <span>→ Instagram</span>
           </a>
         </div>
 

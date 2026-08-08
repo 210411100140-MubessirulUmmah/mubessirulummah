@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUpRight, Sparkles, Download, MapPin, Clock, Award, FileText } from 'lucide-react';
+import { ArrowUpRight, Sparkles, Download, MapPin, Blocks, Rocket, Clock, Award, FileText } from 'lucide-react';
 import { PERSONAL_INFO } from '../data/portfolioData';
 
 interface HeroProps {
@@ -60,29 +60,32 @@ export const Hero: React.FC<HeroProps> = ({ onExploreProjects, onOpenPlayground 
                 Currently
               </span>
               <span className="font-bold text-black dark:text-white flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-ping" />
+                <Award className="w-4 h-4 text-blue-600 dark:text-amber-400 inline" />
                 {PERSONAL_INFO.status}
               </span>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-              <span className="font-mono text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 w-28">
-                Passionate
-              </span>
-              <span className="text-gray-900 dark:text-gray-100">
-                Building <strong className="text-black dark:text-white">Computer Vision, Deep Learning</strong> & AI Automation Workflows
-              </span>
-            </div>
+<div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+  <span className="font-mono text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 w-28">
+    Passionate
+  </span>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-              <span className="font-mono text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 w-28">
-                Delivering
-              </span>
-              <span className="text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <Award className="w-4 h-4 text-amber-600 dark:text-amber-400 inline" />
-                3 Peer-Reviewed Papers & Production AI Platforms 😊
-              </span>
-            </div>
+  <span className="text-gray-900 dark:text-gray-100 flex items-center gap-2">
+    <Blocks className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+    Building Computer Vision, Deep Learning & AI Automation Workflows
+  </span>
+</div>
+
+<div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+  <span className="font-mono text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 w-28">
+    Delivering
+  </span>
+
+  <span className="text-gray-900 dark:text-gray-100 flex items-center gap-2">
+    <Rocket className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+    3 Peer-Reviewed Papers & Production AI Platforms
+  </span>
+</div>
           </div>
 
           {/* CTA Buttons */}
@@ -96,22 +99,23 @@ export const Hero: React.FC<HeroProps> = ({ onExploreProjects, onOpenPlayground 
               <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </button>
 
-            <button
+            {/* <button
               id="hero-ai-playground-btn"
               onClick={onOpenPlayground}
               className="px-6 py-3.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-black font-bold text-sm transition-all flex items-center gap-2 shadow-md active:scale-95"
             >
               <Sparkles className="w-4 h-4 text-black fill-black" />
               <span>Ask AI CV Assistant</span>
-            </button>
+            </button> */}
 
             <a
               id="hero-download-cv-btn"
-              href={`mailto:${PERSONAL_INFO.email}?subject=Request CV - Mubessirul Ummah`}
+              href="https://drive.google.com/file/d/1Er1HgF-Jd87ca56lNUcVgqPI4atdxfzj/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-5 py-3.5 rounded-lg border-2 border-black/20 dark:border-white/30 hover:border-black dark:hover:border-white text-black dark:text-white font-bold text-sm transition-all flex items-center gap-2 hover:bg-black/5 dark:hover:bg-white/10"
             >
-              <FileText className="w-4 h-4" />
-              <span>Get Full CV</span>
+              Get Full CV
             </a>
           </div>
         </div>
