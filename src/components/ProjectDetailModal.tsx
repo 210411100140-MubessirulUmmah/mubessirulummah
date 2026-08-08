@@ -61,38 +61,6 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     {/* Actions */}
     <div className="flex items-center gap-2 shrink-0">
 
-      {/* Interactive Preview
-      <button
-        onClick={() =>
-          setActiveTab(
-            activeTab === 'overview' ? 'interactive' : 'overview'
-          )
-        }
-        className="hidden sm:flex px-3 py-1.5 rounded-lg text-xs font-bold
-                   bg-amber-400 hover:bg-amber-300 text-black
-                   items-center gap-1.5 transition-colors"
-      >
-        <Sparkles className="w-3.5 h-3.5 fill-black" />
-        <span>
-          {activeTab === 'overview'
-            ? 'Try Interactive Preview'
-            : 'Back to Case Study'}
-        </span>
-      </button>
-
-      {/* Mobile Interactive Icon */}
-      <button
-        onClick={() =>
-          setActiveTab(
-            activeTab === 'overview' ? 'interactive' : 'overview'
-          )
-        }
-        className="sm:hidden p-2 rounded-lg bg-amber-400 text-black"
-        aria-label="Toggle interactive preview"
-      >
-        <Sparkles className="w-4 h-4 fill-black" />
-      </button> */}
-
       {/* Close */}
       <button
         id="close-modal-btn"
