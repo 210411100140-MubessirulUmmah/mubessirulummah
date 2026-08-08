@@ -8,7 +8,7 @@ type DetectionBox = {
 };
 
 export const PlaygroundSection: React.FC = () => {
-  const [activeTool, setActiveTool] = useState<'chatbot' | 'vision'>('chatbot');
+  const [activeTool, setActiveTool] = useState<'vision' | 'chatbot'>('vision');
 
   // Chatbot State
   const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([
