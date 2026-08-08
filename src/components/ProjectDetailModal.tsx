@@ -37,35 +37,75 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Sticky Header */}
-        <div className="sticky top-0 z-20 bg-stone-100/90 dark:bg-zinc-900/90 backdrop-blur-md px-6 py-4 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-xs font-bold uppercase tracking-wider px-2.5 py-1 bg-black text-white dark:bg-white dark:text-black rounded-md">
-              {project.category}
-            </span>
-            <h2 className="text-lg sm:text-xl font-bold truncate max-w-md">
-              {project.title}
-            </h2>
-          </div>
+        <div
+  className="sticky top-0 z-20 bg-stone-100/90 dark:bg-zinc-900/90 backdrop-blur-md
+             px-4 sm:px-6 py-4
+             border-b border-black/10 dark:border-white/10"
+>
+  <div className="flex items-start justify-between gap-3">
 
-          <div className="flex items-center gap-3">
-            {/* View Interactive Demo Tab Toggle */}
-            {/* <button
-              onClick={() => setActiveTab(activeTab === 'overview' ? 'interactive' : 'overview')}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 hover:bg-amber-300 text-black flex items-center gap-1.5 transition-colors"
-            >
-              <Sparkles className="w-3.5 h-3.5 fill-black" />
-              <span>{activeTab === 'overview' ? 'Try Interactive Preview' : 'Back to Case Study'}</span>
-            </button> */}
+    {/* Category + Title */}
+    <div className="flex items-start gap-2 sm:gap-3 min-w-0 flex-1">
+      <span className="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-wider
+                       px-2 sm:px-2.5 py-1
+                       bg-black text-white dark:bg-white dark:text-black
+                       rounded-md shrink-0">
+        {project.category}
+      </span>
 
-            <button
-              id="close-modal-btn"
-              onClick={onClose}
-              className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
+      <h2 className="text-base sm:text-xl font-bold leading-tight min-w-0 break-words">
+        {project.title}
+      </h2>
+    </div>
+
+    {/* Actions */}
+    <div className="flex items-center gap-2 shrink-0">
+
+      {/* Interactive Preview
+      <button
+        onClick={() =>
+          setActiveTab(
+            activeTab === 'overview' ? 'interactive' : 'overview'
+          )
+        }
+        className="hidden sm:flex px-3 py-1.5 rounded-lg text-xs font-bold
+                   bg-amber-400 hover:bg-amber-300 text-black
+                   items-center gap-1.5 transition-colors"
+      >
+        <Sparkles className="w-3.5 h-3.5 fill-black" />
+        <span>
+          {activeTab === 'overview'
+            ? 'Try Interactive Preview'
+            : 'Back to Case Study'}
+        </span>
+      </button>
+
+      {/* Mobile Interactive Icon */}
+      <button
+        onClick={() =>
+          setActiveTab(
+            activeTab === 'overview' ? 'interactive' : 'overview'
+          )
+        }
+        className="sm:hidden p-2 rounded-lg bg-amber-400 text-black"
+        aria-label="Toggle interactive preview"
+      >
+        <Sparkles className="w-4 h-4 fill-black" />
+      </button> */}
+
+      {/* Close */}
+      <button
+        id="close-modal-btn"
+        onClick={onClose}
+        className="p-2 rounded-full hover:bg-black/10
+                   dark:hover:bg-white/10 transition-colors shrink-0"
+      >
+        <X className="w-5 h-5 sm:w-6 sm:h-6" />
+      </button>
+
+    </div>
+  </div>
+</div>
 
         {/* Modal Scrollable Body */}
         <div className="p-6 sm:p-10 overflow-y-auto space-y-12 flex-1">
