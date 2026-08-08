@@ -24,7 +24,7 @@ export const AboutSection: React.FC = () => {
   const [expandedExp, setExpandedExp] = useState<string | null>(EXPERIENCES_DATA[0].id);
 
   return (
-    <section id="about" className="py-16 border-b border-black/10">
+    <section id="about" className="py-16 border-b border-black/10 dark:border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Header Banner matching Screenshot 4 (Teal/Cyan Gradient Top) */}
         <div className="rounded-3xl bg-gradient-to-br from-teal-800 via-cyan-900 to-slate-900 text-white p-8 sm:p-14 mb-16 shadow-2xl relative overflow-hidden border border-white/10">

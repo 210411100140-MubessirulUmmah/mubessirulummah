@@ -173,7 +173,7 @@ export const PlaygroundSection: React.FC = () => {
   };
 
   return (
-    <section id="playground" className="py-16 border-b border-black/10">
+    <section id="playground" className="py-16 border-b border-black/10 dark:border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Banner Accent */}
         <div className="relative rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 p-8 sm:p-12 mb-12 text-black shadow-xl overflow-hidden">

@@ -47,7 +47,7 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-16 border-b border-black/10">
+    <section id="contact" className="py-16 border-b border-black/10 dark:border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Header Card Matching Screenshot 5 */}
         <div className="bg-zinc-950 text-white rounded-3xl p-8 sm:p-14 shadow-2xl mb-12 border border-zinc-800 relative overflow-hidden">

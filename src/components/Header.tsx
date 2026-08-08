@@ -97,8 +97,8 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => goToTab(item.id)}
                 className={`px-3 py-1.5 lg:px-4 lg:py-2 text-xs lg:text-sm font-semibold rounded-lg transition-all relative ${
                   isActive
-                    ? 'text-black font-bold bg-black/10 dark:bg-white/15 underline underline-offset-8 decoration-2'
-                    : 'text-gray-700 dark:text-gray-300 hover:text-black hover:bg-black/5'
+                    ? 'text-black dark:text-white font-bold bg-black/10 dark:bg-white/15 underline underline-offset-8 decoration-2'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10'
                 }`}
               >
                 {item.label}
@@ -120,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub Profile"
-            className="hidden sm:inline-flex p-2 rounded-full hover:bg-black/5 transition-colors text-gray-700 hover:text-black"
+            className="hidden sm:inline-flex p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white"
             title="GitHub"
           >
             <Github className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -131,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="LinkedIn Profile"
-            className="hidden sm:inline-flex p-2 rounded-full hover:bg-black/5 transition-colors text-gray-700 hover:text-black"
+            className="hidden sm:inline-flex p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white"
             title="LinkedIn"
           >
             <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -140,7 +140,7 @@ export const Header: React.FC<HeaderProps> = ({
             id="social-email-link"
             href={`mailto:${PERSONAL_INFO.email}`}
             aria-label="Email Me"
-            className="p-2 rounded-full hover:bg-black/5 transition-colors text-gray-700 hover:text-black hidden lg:inline-flex"
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white hidden lg:inline-flex"
             title="Email"
           >
             <Mail className="w-4 h-4 sm:w-5 sm:h-5" />

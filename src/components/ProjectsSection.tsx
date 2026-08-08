@@ -19,7 +19,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onSelectProjec
       : PROJECTS_DATA.filter((p) => p.category === selectedCategory);
 
   return (
-    <section id="project" className="py-16 border-b border-black/10">
+    <section id="project" className="py-16 border-b border-black/10 dark:border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -46,7 +46,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onSelectProjec
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   selectedCategory === cat
                     ? 'bg-black text-white dark:bg-white dark:text-black shadow-md'
-                    : 'text-gray-700 dark:text-gray-300 hover:text-black hover:bg-black/10'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10'
                 }`}
               >
                 {cat}
