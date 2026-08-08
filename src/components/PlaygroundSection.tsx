@@ -340,9 +340,9 @@ export const PlaygroundSection: React.FC = () => {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-black/10 dark:border-white/10">
                 <div>
                   <h3 className="text-xl font-bold">Live Object Detection</h3>
-                  <p className="text-xs text-gray-500 font-mono mt-0.5">
+                  {/* <p className="text-xs text-gray-500 font-mono mt-0.5">
                     Runs COCO-SSD (TensorFlow.js) entirely in your browser — no image is uploaded to any server.
-                  </p>
+                  </p> */}
                 </div>
                 {imageSrc && (
                   <button
@@ -431,9 +431,8 @@ export const PlaygroundSection: React.FC = () => {
                     </div>
                   ) : (
                     <div className="bg-stone-50 dark:bg-zinc-800 p-6 rounded-2xl border border-dashed border-gray-400 text-gray-500 text-xs text-center">
-                      Upload a photo and click "Run Detection Model" to see live bounding boxes for objects like
-                      people, cars, animals, and everyday items — powered by a general-purpose model (COCO-SSD)
-                      running fully client-side.
+                      Upload a photo and click "Run Detection Model" to see detection results for objects like
+                      people, cars, animals, and everyday items.
                     </div>
                   )}
                 </div>
