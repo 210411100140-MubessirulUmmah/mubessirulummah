@@ -236,104 +236,6 @@ export const PlaygroundSection: React.FC = () => {
 
         {/* Tool Content Area */}
         <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-black/10 dark:border-white/10 p-6 sm:p-8 shadow-xl">
-          {/* TOOL 1: GEMINI AI CHATBOT */}
-          {activeTool === 'chatbot' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="font-mono text-xs font-bold uppercase tracking-wider">
-                    Gemini 2.5 Flash Server-Side AI Assistant
-                  </span>
-                </div>
-                <button
-                  onClick={() =>
-                    setChatMessages([
-                      {
-                        role: 'assistant',
-                        text: 'Chat direset. Silakan tanyakan apa saja tentang Mubessirul Ummah!',
-                      },
-                    ])
-                  }
-                  className="text-xs font-mono text-gray-500 hover:text-black flex items-center gap-1"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" /> Reset Chat
-                </button>
-              </div>
-
-              <div className="bg-stone-50 dark:bg-zinc-950 rounded-2xl p-4 sm:p-6 space-y-4 max-h-[380px] overflow-y-auto border border-black/5">
-                {chatMessages.map((msg, idx) => (
-                  <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    {msg.role === 'assistant' && (
-                      <div className="w-8 h-8 rounded-full bg-amber-400 text-black flex items-center justify-center font-bold shrink-0 text-xs shadow">
-                        AI
-                      </div>
-                    )}
-                    <div
-                      className={`max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed ${
-                        msg.role === 'user'
-                          ? 'bg-black text-white dark:bg-white dark:text-black font-medium'
-                          : 'bg-white dark:bg-zinc-800 text-black dark:text-white border border-black/10 shadow-sm whitespace-pre-wrap'
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
-                  </div>
-                ))}
-
-                {isChatLoading && (
-                  <div className="flex gap-3 items-center text-xs font-mono text-gray-500 animate-pulse">
-                    <div className="w-8 h-8 rounded-full bg-amber-400 text-black flex items-center justify-center font-bold text-xs">
-                      AI
-                    </div>
-                    <span>Gemini AI sedang berpikir...</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <span className="text-xs font-mono text-gray-500 block">Suggested Questions:</span>
-                <div className="flex flex-wrap gap-2">
-                  {suggestedPrompts.map((prompt, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleSendChat(prompt)}
-                      className="px-3 py-1.5 rounded-full text-xs bg-black/5 hover:bg-black/10 dark:bg-white/10 text-black dark:text-white font-medium transition-colors text-left"
-                    >
-                      "{prompt}"
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSendChat();
-                }}
-                className="flex gap-2"
-              >
-                <input
-                  id="chat-user-input"
-                  type="text"
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  placeholder="Ketik pertanyaan untuk AI Assistant Mubessirul..."
-                  className="flex-1 px-4 py-3 rounded-xl border border-black/20 dark:border-white/20 bg-white dark:bg-zinc-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
-                />
-                <button
-                  id="chat-send-btn"
-                  type="submit"
-                  disabled={isChatLoading || !userInput.trim()}
-                  className="px-5 py-3 rounded-xl bg-black text-white dark:bg-white dark:text-black font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
-                >
-                  <span>Kirim</span>
-                  <Send className="w-4 h-4" />
-                </button>
-              </form>
-            </div>
-          )}
-
           {/* TOOL 2: OBJECT DETECTION DEMO */}
           {activeTool === 'vision' && (
             <div className="space-y-6">
@@ -439,6 +341,106 @@ export const PlaygroundSection: React.FC = () => {
               </div>
             </div>
           )}
+          
+          {/* TOOL 1: GEMINI AI CHATBOT */}
+          {activeTool === 'chatbot' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="font-mono text-xs font-bold uppercase tracking-wider">
+                    Gemini 2.5 Flash Server-Side AI Assistant
+                  </span>
+                </div>
+                <button
+                  onClick={() =>
+                    setChatMessages([
+                      {
+                        role: 'assistant',
+                        text: 'Chat direset. Silakan tanyakan apa saja tentang Mubessirul Ummah!',
+                      },
+                    ])
+                  }
+                  className="text-xs font-mono text-gray-500 hover:text-black flex items-center gap-1"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" /> Reset Chat
+                </button>
+              </div>
+
+              <div className="bg-stone-50 dark:bg-zinc-950 rounded-2xl p-4 sm:p-6 space-y-4 max-h-[380px] overflow-y-auto border border-black/5">
+                {chatMessages.map((msg, idx) => (
+                  <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {msg.role === 'assistant' && (
+                      <div className="w-8 h-8 rounded-full bg-amber-400 text-black flex items-center justify-center font-bold shrink-0 text-xs shadow">
+                        AI
+                      </div>
+                    )}
+                    <div
+                      className={`max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed ${
+                        msg.role === 'user'
+                          ? 'bg-black text-white dark:bg-white dark:text-black font-medium'
+                          : 'bg-white dark:bg-zinc-800 text-black dark:text-white border border-black/10 shadow-sm whitespace-pre-wrap'
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+
+                {isChatLoading && (
+                  <div className="flex gap-3 items-center text-xs font-mono text-gray-500 animate-pulse">
+                    <div className="w-8 h-8 rounded-full bg-amber-400 text-black flex items-center justify-center font-bold text-xs">
+                      AI
+                    </div>
+                    <span>Gemini AI sedang berpikir...</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <span className="text-xs font-mono text-gray-500 block">Suggested Questions:</span>
+                <div className="flex flex-wrap gap-2">
+                  {suggestedPrompts.map((prompt, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSendChat(prompt)}
+                      className="px-3 py-1.5 rounded-full text-xs bg-black/5 hover:bg-black/10 dark:bg-white/10 text-black dark:text-white font-medium transition-colors text-left"
+                    >
+                      "{prompt}"
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendChat();
+                }}
+                className="flex gap-2"
+              >
+                <input
+                  id="chat-user-input"
+                  type="text"
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  placeholder="Ketik pertanyaan untuk AI Assistant Mubessirul..."
+                  className="flex-1 px-4 py-3 rounded-xl border border-black/20 dark:border-white/20 bg-white dark:bg-zinc-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
+                <button
+                  id="chat-send-btn"
+                  type="submit"
+                  disabled={isChatLoading || !userInput.trim()}
+                  className="px-5 py-3 rounded-xl bg-black text-white dark:bg-white dark:text-black font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+                >
+                  <span>Kirim</span>
+                  <Send className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
+          )}
+
+          
         </div>
       </div>
     </section>
