@@ -114,8 +114,12 @@ export const PlaygroundSection: React.FC = () => {
     const canvas = canvasRef.current;
     if (!img || !canvas) return;
 
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    // Use the img's RENDERED size (not naturalWidth/naturalHeight).
+    // coco-ssd's model.detect() computes bounding boxes relative to the
+    // image element's displayed size, so the canvas must match that same
+    // coordinate space or boxes will be drawn in the wrong position/scale.
+    canvas.width = img.width;
+    canvas.height = img.height;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
